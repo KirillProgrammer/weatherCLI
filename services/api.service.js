@@ -1,20 +1,33 @@
 import axios from 'axios';
 import { getKeyValue, TOKEN_DICTIONARY } from './storage.service.js';
+import { printError } from './log.service.js';
 
-const getWeather = async (city) => {
+const getWeather = async () => {
+  const city = await getCity()
   // const url = `api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}`
-  const token = await getToken();
-  const {lat,lon} = await getGeo(city);
+  // if(city == undefined) {
+  //   city = 'moscow'
+  // }
+  const token = await getToken()
+  let x, y
+  try {
+    const { lat, lon } = await getGeo(city)
+    x = lat
+    y = lon
+  } catch(err) {
+      printError('Неверно указан токен или город')
+      return
+  }
 
   const { data } = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
     params: {
-      lat,
-      lon,
+      lat: x,
+      lon: y,
       appid: token,
       lang: 'ru',
       units: 'metrics'
   }})
-  return data
+  return data;
 }
 
 const getGeo = async (city) => {
@@ -26,8 +39,8 @@ const getGeo = async (city) => {
       appid: token
     }
   });
-  const { lat, lon } = data[0];
-  return {lat, lon};
+
+  return data[0]
 }
 
 const getToken = async () => {
@@ -36,6 +49,13 @@ const getToken = async () => {
     throw new Error('No token');
   }
   return token;
+}
+const getCity = async () => {
+  const city = await getKeyValue(TOKEN_DICTIONARY.city);
+  if (!city) {
+    throw new Error('No city');
+  }
+  return city;
 }
 
 export { getWeather };

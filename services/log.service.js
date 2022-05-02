@@ -18,4 +18,12 @@ const printHelp = () => {
     -t [API_KEY] - for saving token`);
 }
 
-export { printError, printSuccess, printHelp };
+const printWeather = (weather) => {
+  console.log(
+    `Погода в городе ${weather.name}
+На данный момент ${weather.description}, а скорость ветра ${weather.wind.speed}м/с
+Температура ${Math.round(weather.main.temp - 273.15)} градусов по Цельсию, а чувствуется как ${Math.round(weather.main.feels_like - 273.15)} градусов`
+  )
+}
+
+export { printError, printSuccess, printHelp, printWeather };
